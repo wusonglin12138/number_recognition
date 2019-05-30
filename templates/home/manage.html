@@ -1,0 +1,208 @@
+{% extends 'user_base.html' %}
+{% load home_tags %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block context %}
+<!-- main-heading -->
+            <h2 class="main-title-w3layouts mb-2 text-center">Management</h2>
+                <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+                    <!-- Search-from -->
+                    <form action="/home/manage/uid={{ request.session.user_id }}/page={{ pindex }}" method="POST" class="form-inline mx-auto search-form">
+
+                        <!--<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" required="">-->
+                        From &nbsp;<input class="form-control mr-sm-2" type="datetime-local" name="from" id="from" value="">
+                        To &nbsp;<input class="form-control mr-sm-2" type="datetime-local" name="to" id="to" value="">&nbsp;
+                        <button class="btn btn-style my-2 my-sm-0" type="button" id="search">Search</button>
+                        <!--<button class="btn btn-style my-2 my-sm-0" type="button" id="submit" onclick="">Search</button>-->
+                    </form>
+                    <!--// Search-from -->
+                    <hr/>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    S/N
+                                </th>
+                                <th class="text-center">
+                                    create time
+                                </th>
+                                <th class="text-center">
+                                    image
+                                </th>
+                                <th class="text-center">
+                                    predicted time
+                                </th>
+                                <th class="text-center">
+                                    for more details
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="search_content">
+
+
+                        {% comment %}
+                        <!--{% for picture in page %}-->
+                            <!--<tr align="center" valign="middle" id="test3">-->
+                                <!--<td>{{ page.number|multiply:10|add:forloop.counter }}</td>-->
+                                <!--<td>{{ picture.pcreatetime }}</td>-->
+                                <!--<td><img src="{{ picture.purl }}"></td>-->
+                                <!--<td>{{ picture.pretime }}</td>-->
+                                <!--<td>-->
+                                    <!--<a href="/home/detail/pid={{ picture.id }}" class="btn btn-link" name="detail" id="detail">-->
+                                        <!--For More Details</a>-->
+                                <!--</td>-->
+                            <!--</tr>-->
+                        <!--{% endfor %}-->
+                        {% endcomment %}
+                        </tbody>
+                </table>
+                    <hr>
+
+                    <div align="right">
+                        <ul class="pagination pagination-lg">
+                            {% comment %}
+                            {% if pindex != '1' %}
+                                <li><a href="/home/manage/uid={{ request.session.user_id }}/page={{ index|min:1 }}?from={{ from_time }}&to={{to_time}}" onclick="change_page(1)">&laquo;</a></li>
+                            {% endif %}
+                            {% endcomment %}
+                        {#{% for index in page.paginator.page_range %}#}
+                        <li id="index">
+                            {#<a href="/home/manage/uid={{ request.session.user_id }}/page={{ index }}?from={{ from_time }}&to={{to_time}}" class="index" id="{{ index }}">{{ index }}</a>#}
+                        </li>
+                        {#{% endfor %}#}
+                            {% comment %}
+                            {% if pindex != page.paginator.page_range %}
+                                <li><a href="#" onclick="change_page(2)">&raquo;</a></li>
+                            {% endif %}
+                            {% endcomment %}
+                        </ul>
+                    </div>
+
+                </div>
+
+{% endblock context %}
+{% block js %}
+<!--<script>-->
+    <!--$(function(){-->
+
+        <!--var from_time = "{{ from_time }}";-->
+        <!--var to_time = "{{ to_time }}";-->
+        <!--console.log(from_time);-->
+
+        <!--if(from_time!=""){-->
+            <!--$('#from').val(from_time);-->
+        <!--}-->
+        <!--if(to_time!=""){-->
+            <!--$('#to').val(to_time);-->
+        <!--}-->
+
+    <!--});-->
+
+<!--</script>-->
+
+<script>
+
+    var pageNo = 1;
+
+    function initTable(index){
+
+        var from_time = $("#from").val();
+        var to_time = $("#to").val();
+
+        $.ajax({
+            type:"post",
+            url:"/home/manage/uid={{ request.session.user_id }}/page="+index,
+            data:{"from":from_time, "to":to_time, "pindex":index},
+            dataType:"json",
+            success: function(data){
+                var html = "";
+                data = JSON.parse(data)
+                <!--console.log(data)-->
+
+                for(var i=0; i<data.page_index_num; i++){
+
+                    var picture = data.page[i];
+
+                    var url = picture['purl'];
+                    var link_id = picture['id'];
+                    var index = i+1;
+                    //console.log(typeof(picture.pcreatetime.year));
+                    var year = String(picture.pcreatetime.year);
+                    var month = "0"+String(picture.pcreatetime.month);
+                    var day = "0"+String(picture.pcreatetime.day);
+                    var hour = "0"+String(picture.pcreatetime.hour);
+                    var minute = "0"+String(picture.pcreatetime.minute);
+
+                    var time = year+'-'+month.slice(-2)+'-'+day.slice(-2)+" "+hour.slice(-2)+":"+minute.slice(-2);
+                    //console.log(time)
+
+                    html += '<tr align="center" valign="middle" id="tr_'+picture.id+'">';
+                    html += '<td>'+String((data.pindex-1)*10+index)+'</td>';
+                    html += '<td>'+time+'</td>';
+                    html += '<td>'+'<img src="'+url+'">'+'</td>';
+                    html += '<td>'+picture['pretime']+'</td>';
+                    html += '<td class="operation">'+'<button type="button" class="btn btn-danger" name="delete" id=picture_'+picture.id+'>Delete</button>'
+                            +'<a href="/home/detail/pid='+link_id+'" class="btn btn-link" name="detail" id="detail">For More Details</a></td></tr>';
+                }
+                $("#search_content").html(html);
+
+                html1 = "";
+                for(var j=0; j<data.page_num; j++){
+                    html1 += '<a href="#" class="indexes" id="'+String(j+1)+'">'+String(j+1)+'</a>'
+                }
+                $("#index").html(html1);
+            }
+        })
+    }
+
+    function delete_picture(id, index){
+        $.ajax({
+            type:"post",
+            url:"/manage/delete_picture/",
+            data:{"id":id},
+            dataType:"json",
+            success: function(data){
+                <!--var html = "";-->
+                data = JSON.parse(data)
+                if(data.isDelete == '1'){
+                    tr_id = 'tr_'+id;
+                    <!--console.log(tr_id);-->
+                    $("#"+tr_id).remove();
+                    initTable(index);
+                }
+            }
+        })
+    }
+
+    $(function () {
+        //调用函数，初始化表格
+        initTable(pageNo);
+
+        //当点击查询按钮的时候执行
+        $("#search").bind("click", function(){
+            initTable(pageNo);
+
+        });
+
+        //分页执行
+        $("#index").on("click", ".indexes", function(){
+            var index = $(this).attr("id");
+            <!--alert(index);-->
+            pageNo = index;
+            initTable(pageNo);
+        })
+
+        //delete button btn-danger
+        $("#search_content").on("click", "td>.btn-danger", function(){
+            if(confirm("Sure to delete this picture ?")){
+                var id = $(this).attr("id").split("_")[1];
+                delete_picture(id, pageNo);
+            }
+
+
+        })
+    });
+</script>
+{% endblock js %}

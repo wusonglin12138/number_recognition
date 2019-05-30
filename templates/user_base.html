@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block component%}
+<ul class="list-unstyled components" id="list">
+    <li class="" >
+        <a href="/home">
+            <i class="fas fa-th-large"></i>
+            Introduction
+        </a>
+    </li>
+    <li class="">
+        <a href="/home/upload">
+            <i class="fas fa-th"></i>
+            Laboratory
+        </a>
+    </li>
+
+    <li class="">
+        <a href="/home/manage/uid={{ request.session.user_id }}/page=">
+            <i class="fas fa-chart-pie"></i>
+            Management
+        </a>
+    </li>
+
+    <li class="">
+        <a href="#pageSubmenu3" data-toggle="collapse" aria-expanded="false">
+            <i class="fas fa-users"></i>
+            User
+            <i class="fas fa-angle-down fa-pull-right"></i>
+        </a>
+        <ul class="collapse list-unstyled" id="pageSubmenu3">
+            <li>
+                <a href="/user/login">Login</a>
+            </li>
+            <li>
+                <a href="/user/register">Register</a>
+            </li>
+            <li>
+                <a href="/user/forgot">Forgot password</a>
+            </li>
+        </ul>
+    </li>
+    <li class="">
+        <a href="/home/help">
+            <i class="far fa-map"></i>
+            Help
+        </a>
+    </li>
+    </ul>
+{% endblock component %}
+
+{% block js_base %}
+<script>
+    $("#list").children()[{{ color }}].setAttribute("class", "active");
+</script>
+{% endblock js_base %}

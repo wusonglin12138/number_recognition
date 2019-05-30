@@ -1,0 +1,156 @@
+{% extends 'user_base.html' %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block context %}
+<!-- main-heading -->
+            <h2 class="main-title-w3layouts mb-2 text-center">Details</h2>
+                <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+                    <h4 class="tittle-w3-agileits mb-4">Table</h4>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    create time
+                                </th>
+                                <th class="text-center">
+                                    predicted result
+                                </th>
+                                <th class="text-center">
+                                    0 percentage
+                                </th>
+                                <th class="text-center">
+                                    1 percentage
+                                </th>
+                                <th class="text-center">
+                                    2 percentage
+                                </th>
+                                <th class="text-center">
+                                    3 percentage
+                                </th>
+                                <th class="text-center">
+                                    4 percentage
+                                </th>
+                                <th class="text-center">
+                                    5 percentage
+                                </th>
+                                <th class="text-center">
+                                    6 percentage
+                                </th>
+                                <th class="text-center">
+                                    7 percentage
+                                </th>
+                                <th class="text-center">
+                                    8 percentage
+                                </th>
+                                <th class="text-center">
+                                    9 percentage
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr align="center">
+                                <td>{{ pcreatetime }}</td>
+
+                                <td>{{ preresult }}</td>
+
+                                <td>{{ prepercent_0 }}%</td>
+
+                                <td>{{ prepercent_1 }}%</td>
+
+                                <td>{{ prepercent_2 }}%</td>
+
+                                <td>{{ prepercent_3 }}%</td>
+
+                                <td>{{ prepercent_4 }}%</td>
+
+                                <td>{{ prepercent_5 }}%</td>
+
+                                <td>{{ prepercent_6 }}%</td>
+
+                                <td>{{ prepercent_7 }}%</td>
+
+                                <td>{{ prepercent_8 }}%</td>
+
+                                <td>{{ prepercent_9 }}%</td>
+                            </tr>
+                        </tbody>
+                </table>
+                </div>
+                <!-- Pie-chart -->
+                    <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+                        <h4 class="tittle-w3-agileits mb-4">Pie Chart</h4>
+                        <div id="chartdiv"></div>
+                    </div>
+                <!--// Pie-chart -->
+
+{% endblock context %}
+{% block js %}
+    <!-- pie-chart -->
+    <script src='/static/js/amcharts.js'></script>
+    <script>
+        var chart;
+        var legend;
+
+        var chartData = [{
+                key: "0",
+                value: {{ prepercent_0 }}
+            },
+            {
+                key: "1",
+                value: {{ prepercent_1 }}
+            },
+            {
+                key: "2",
+                value: {{ prepercent_2 }}
+            },
+            {
+                key: "3",
+                value: {{ prepercent_3 }}
+            },
+            {
+                key: "4",
+                value: {{ prepercent_4 }}
+            },
+            {
+                key: "5",
+                value: {{ prepercent_5 }}
+            },
+            {
+                key: "6",
+                value: {{ prepercent_6 }}
+            },
+            {
+                key: "7",
+                value: {{ prepercent_7 }}
+            },
+            {
+                key: "8",
+                value: {{ prepercent_8 }}
+            },
+            {
+                key: "9",
+                value: {{ prepercent_9 }}
+            },
+        ];
+
+        AmCharts.ready(function () {
+            // PIE CHART
+            chart = new AmCharts.AmPieChart();
+            chart.dataProvider = chartData;
+            chart.titleField = "key";
+            chart.valueField = "value";
+            chart.outlineColor = "";
+            chart.outlineAlpha = 0.8;
+            chart.outlineThickness = 2;
+            // this makes the chart 3D
+            chart.depth3D = 20;
+            chart.angle = 30;
+
+            // WRITE
+            chart.write("chartdiv");
+        });
+    </script>
+    <!--// pie-chart -->
+{% endblock js %}

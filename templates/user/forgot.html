@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Reset Password</title>
+    <!-- Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="keywords" content="" />
+    <script>
+        addEventListener("load", function () {
+            setTimeout(hideURLbar, 0);
+        }, false);
+
+        function hideURLbar() {
+            window.scrollTo(0, 1);
+        }
+    </script>
+    <!-- //Meta Tags -->
+
+    <!-- Style-sheets -->
+    <!-- Bootstrap Css -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
+    <!-- Bootstrap Css -->
+    <!-- Common Css -->
+    <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all" />
+    <!--// Common Css -->
+    <!-- Fontawesome Css -->
+    <link href="/static/css/fontawesome-all.css" rel="stylesheet">
+    <!--// Fontawesome Css -->
+    <!--// Style-sheets -->
+
+    <!--web-fonts-->
+    <link href="http://fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!--//web-fonts-->
+</head>
+
+<body>
+    <div class="bg-page py-5">
+        <div class="container">
+            <!-- main-heading -->
+            <h2 class="main-title-w3layouts mb-2 text-center text-white">Reset Password</h2>
+            <!--// main-heading -->
+            <div class="form-body-w3-agile text-center w-lg-50 w-sm-75 w-100 mx-auto mt-5">
+                <form action="/user/forgot_check_ver_code/" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" name="username" id="username" value="{{ uname }}" placeholder="Enter Username" required="">
+                    </div>
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" class="form-control" name="email" id="email" value="{{ uemail }}" placeholder="Enter email" required="">
+                    </div>
+                    <div class="form-group">
+                        <label>Verification code</label>
+                        <input type="text" class="form-control" name="ver_code" placeholder="Verification code" required="">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="send1()">Send Verification Code</button>
+                    <button type="submit" class="btn btn-primary" onclick="check_ver_code()">Confirm Verification Code</button>
+
+                </form>
+                <h1 class="paragraph-agileits-w3layouts mt-4">
+                    <a href="/user/login">Back to Login</a>
+                </h1>
+            </div>
+
+            <!-- Copyright -->
+            <div class="copyright-w3layouts py-xl-3 py-2 mt-xl-5 mt-4 text-center">
+                <p>Copyright &copy; 2018.Company name All rights reserved.<a target="_blank" href="http://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a></p>
+            </div>
+            <!--// Copyright -->
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function send1(){
+            console.log("0000000")
+            $.get('/user/forgot_handle/?uname=' + $('#username').val() + '&uemail=' + $('#email').val(), function(data){
+                    if(data.error_name==1){
+                        alert("用户名不存在")
+                    }
+                    if(data.error_email == 1){
+                        alert("邮箱错误")
+                    }
+                })
+        }
+
+
+
+    </script>
+    <script>
+        function check_ver_code(){
+        console.log("999999")
+            error_ver_code = "1";
+
+            if(error_ver_code == {{ error_ver_code }}){
+                alert("验证码错误");
+            }
+
+        }
+
+    </script>
+
+    <!-- Required common Js -->
+    <script src='/static/js/jquery-2.2.3.min.js'></script>
+    <!-- //Required common Js -->
+
+    <!-- Js for bootstrap working-->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <!-- //Js for bootstrap working -->
+
+</body>
+
+
+</html>

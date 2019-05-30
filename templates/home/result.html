@@ -1,0 +1,28 @@
+{% extends 'user_base.html' %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block context %}
+<!-- main-heading -->
+            <h2 class="main-title-w3layouts mb-2 text-center">Predict Successfully</h2>
+            <!--// main-heading -->
+
+            <!-- Modals content -->
+            <section class="modals-section">
+                <div class="outer-w3-agile mt-3">
+                    <!-- Live Demo -->
+                    <h4 class="tittle-w3-agileits mb-4">Predicted Result is</h4>
+                    <div align="center">
+                        <h4 class="error-title-agileits">{{ result }}</h4>
+                        <!--<img src="{{ picture_url }}">-->
+                    <a href="/home/detail/pid={{ pid }}" class="btn more mt-3" name="detail" id="detail">For More Details</a>
+                    </div>
+                </div>
+            </section>
+
+            <!--// Modals content -->
+
+{% endblock context %}
+{% block js %}
+
+{% endblock js %}

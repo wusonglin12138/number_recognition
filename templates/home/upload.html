@@ -1,0 +1,281 @@
+{% extends 'user_base.html' %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block head %}
+<!-- bootstrap 4.x is supported. You can also use the bootstrap css 3.3.x versions -->
+<!--<link rel="stylesheet" href="/static/css/bootstrap.css" crossorigin="anonymous">-->
+<link href="/static/bootstrap-fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+<!-- if using RTL (Right-To-Left) orientation, load the RTL CSS file after fileinput.css by uncommenting below -->
+<!-- link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/4.5.1/css/fileinput-rtl.min.css" media="all" rel="stylesheet" type="text/css" /-->
+<!-- the font awesome icon library if using with `fas` theme (or Bootstrap 4.x). Note that default icons used in the plugin are glyphicons that are bundled only with Bootstrap 3.x. -->
+<link rel="stylesheet" href="/static/css/fontawesome-all.css" crossorigin="anonymous">
+<!--<link rel="stylesheet" href="/static/bootstrap-fileinput/themes/explorer/theme.css" crossorigin="anonymous">-->
+<script src="/static/js/jquery-2.2.3.min.js" crossorigin="anonymous"></script>
+<!-- piexif.min.js is needed for auto orienting image files OR when restoring exif data in resized images and when you
+    wish to resize images before upload. This must be loaded before fileinput.min.js -->
+<script src="/static/bootstrap-fileinput/js/plugins/piexif.min.js" type="text/javascript"></script>
+<!-- sortable.min.js is only needed if you wish to sort / rearrange files in initial preview.
+    This must be loaded before fileinput.min.js -->
+<script src="/static/bootstrap-fileinput/js/plugins/sortable.min.js" type="text/javascript"></script>
+<!-- purify.min.js is only needed if you wish to purify HTML content in your preview for
+    HTML files. This must be loaded before fileinput.min.js -->
+<script src="/static/bootstrap-fileinput/js/plugins/purify.min.js" type="text/javascript"></script>
+<!-- bootstrap.min.js below is needed if you wish to zoom and preview file content in a detail modal
+    dialog. bootstrap 4.x is supported. You can also use the bootstrap js 3.3.x versions. -->
+<script src="/static/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<!-- the main fileinput plugin file -->
+<script src="/static/bootstrap-fileinput/js/fileinput.min.js"></script>
+<!-- following theme script is needed to use the Font Awesome 5.x theme (`fas`) -->
+<script src="/static/bootstrap-fileinput/themes/fas/theme.min.js"></script>
+<!-- optionally if you need translation for your language then include the locale file as mentioned below (replace LANG.js with your language locale) -->
+<script src="/static/bootstrap-fileinput/js/locales/LANG.js"></script>
+
+{% endblock head %}
+
+{% block context %}
+<div class="container-fluid">
+    <h2 class="main-title-w3layouts mb-2 text-center">Laboratory</h2>
+    <div class="row">
+        <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+            <h4 class="tittle-w3-agileits mb-4">Draw Image</h4>
+            <div align="center">
+                <canvas class="canvas-box" id="canvas"></canvas>
+
+                <!--<div class="btn" onclick="clearDraw()">清除</div>-->
+                <!--<div class="btn" onclick="saveDraw()">预测</div>-->
+            </div>
+            <div align="center">
+                <input type="button" class="btn btn-primary" id="cleardraw" onclick="clearDraw()" value="Clear">
+                <input type="button" class="btn btn-danger" id="savedraw" onclick="saveDraw()" value="Submit">
+            </div>
+        </div>
+
+
+        <!-- Pie-chart -->
+        <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+            <h4 class="tittle-w3-agileits mb-4">Choose Image</h4>
+            <form enctype="multipart/form-data" action="/home/pre_conduct/" method="post">
+                {% csrf_token %}
+                <input type="file" name="upload" id="input-id" class="file" data-preview-file-type="text" accept="image/jpeg, image/png" multiple="multiple"
+                    required="">
+                <div align="center">
+                    <button type="submit" class="btn btn-primary error-w3l-btn mt-sm-5 mt-3 px-4">Submit</button>
+                </div>
+            </form>
+        </div>
+        <!--// Pie-chart -->
+    </div>
+</div>
+
+{% endblock context %}
+
+{% block js %}
+<script type="text/javascript">
+			var canvas = document.getElementById('canvas');
+			var context = canvas.getContext("2d");
+			var isDraw = false; //定义变量控制画笔是否可用
+			var movePos; //定义变量存放初始画笔开始位置
+			var linWidth = 10;
+			var linColor = '#333';
+			context.fillStyle = '#fff';
+
+			window.onload = function() {
+				draw();
+			}
+
+			function draw() {
+
+				canvas.width = 500;
+				canvas.height = 500;
+
+				context.strokeStyle = "red";
+				context.lineWidth = 10;
+
+				context.beginPath();
+				context.strokeRect(0, 0, 500, 500);
+
+				//设置画笔颜色，宽度
+				context.strokeStyle = "red";
+				context.lineWidth = 100;
+
+				//使线段连续，圆滑
+				context.lineCap = "round";
+				context.lineJoin = "round";
+
+				drawDashedLine(context, 0, 0, 500, 500);
+
+				drawDashedLine(context, 0, 500, 500, 0);
+
+				drawLine(context, 0, 250, 500, 250);
+
+				drawLine(context, 250, 0, 250, 500);
+			}
+
+			<!--//画虚线（参照网上大神）-->
+			<!--function drawDashedLine(context, x1, y1, x2, y2, dashLength) {-->
+				<!--dashLength = dashLength === undefined ? 5 : dashLength;-->
+				<!--var deltaX = x2 - x1;-->
+				<!--var deltaY = y2 - y1;-->
+				<!--var numDashes = Math.floor(-->
+					<!--Math.sqrt(deltaX * deltaX + deltaY * deltaY) / dashLength);-->
+				<!--for(var i = 0; i < numDashes; ++i) {-->
+					<!--context[i % 2 === 0 ? 'moveTo' : 'lineTo'](x1 + (deltaX / numDashes) * i, y1 + (deltaY / numDashes) * i);-->
+				<!--}-->
+				<!--context.stroke();-->
+			<!--};-->
+
+			//画直线
+			function drawLine(context, x1, y1, x2, y2) {
+				context.moveTo(x1, y1);
+				context.lineTo(x2, y2);
+				context.stroke();
+			};
+
+			//获取鼠标相对与canvas位置
+			function getPos(x, y) {
+				var box = canvas.getBoundingClientRect();
+				return {
+					x: x - box.left,
+					y: y - box.top
+				};
+			};
+
+			//画笔
+			function drawing(e) {
+				if(isDraw) {
+					var position = getPos(e.clientX, e.clientY);
+					context.strokeStyle = linColor;
+					context.lineWidth = linWidth;
+					context.save();
+					context.beginPath();
+					context.moveTo(movePos.x, movePos.y);
+					context.lineTo(position.x, position.y);
+					context.stroke();
+					movePos = position;
+					context.restore();
+				}
+
+			}
+
+			//鼠标点下
+			canvas.onmousedown = function(e) {
+				isDraw = true;
+				movePos = getPos(e.clientX, e.clientY);
+				drawing(e);
+			}
+
+			//鼠标移动
+			canvas.onmousemove = function(e) {
+				drawing(e);
+			}
+
+			//鼠标松开
+			canvas.onmouseup = function(e) {
+				isDraw = false;
+			}
+
+			//鼠标离开
+			canvas.onmouseout = function(e) {
+				isDraw = false;
+			}
+
+
+			//清除
+			function clearDraw() {
+				context.clearRect(0, 0, 500, 500);
+				draw();
+			}
+
+			//保存图片
+			function saveDraw() {
+
+
+
+
+                var Pic = canvasToImage("#fff");
+
+
+
+			    <!--var Pic = small_canvas.toDataURL("image/png");-->
+			    <!--Pic = Pic.replace(/^data:image\/(png|jpg);base64,/, "")-->
+
+			    // Sending the image data to Server
+			    $.ajax({
+			        type: 'POST',
+			        url: '/home/pre_conduct/',
+			        data:{"isDraw":1, "imageData":Pic},
+
+			        dataType: 'json',
+			        success: function (msg) {
+			            <!--alert("Done, Picture Uploaded.");-->
+			            msg = JSON.parse(msg);
+			            var result = msg.result;
+			            var title = "Result";
+			            var pid = msg.pid;
+			            window.location.href="http://192.168.234.128:8000/home/pre_conduct?pid=" + pid + "&title=" + title + "&result=" + result ;
+			        }
+			    });
+			}
+
+			function canvasToImage(backgroundColor)
+            {
+                //cache height and width
+                var w = 500;
+                var h = 500;
+                var canvas = document.getElementById("canvas");
+                var context = canvas.getContext('2d')
+                var data;
+
+                if(backgroundColor)
+                {
+                    //get the current ImageData for the canvas.
+                    data = context.getImageData(0, 0, w, h);
+
+                    //store the current globalCompositeOperation
+                    var compositeOperation = context.globalCompositeOperation;
+
+                    //set to draw behind current content
+                    context.globalCompositeOperation = "destination-over";
+
+                    //set background color
+                    context.fillStyle = backgroundColor;
+
+                    //draw background / rect on entire canvas
+                    context.fillRect(0,0,w,h);
+                }
+
+                // Generate the image data
+
+			    var img = new Image();
+			    img.src = canvas.toDataURL("image/png");
+
+                //Create virtual canvas
+			    var small_canvas = document.createElement('canvas');
+                var small_context = small_canvas.getContext('2d');
+                small_canvas.width = 28;
+                small_canvas.height = 28 ;
+                // 核心JS就这个
+                small_context.drawImage(img,0,0,28,28);
+
+                //get the image data from the canvas
+                var imageData = small_canvas.toDataURL("image/png");
+                Pic = imageData.replace(/^data:image\/(png|jpg);base64,/, "")
+
+                if(backgroundColor)
+                {
+                    //clear the canvas
+                    context.clearRect (0,0,w,h);
+
+                    //restore it with original / cached ImageData
+                    context.putImageData(data, 0,0);
+
+                    //reset the globalCompositeOperation to what it was
+                    context.globalCompositeOperation = compositeOperation;
+                }
+
+                //return the Base64 encoded data url string
+                return Pic;
+            }
+		</script>
+{% endblock js %}

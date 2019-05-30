@@ -1,0 +1,255 @@
+{% extends 'manager_base.html' %}
+{% load home_tags %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block context %}
+<!-- main-heading -->
+            <h2 class="main-title-w3layouts mb-2 text-center">User Management</h2>
+                <div class="outer-w3-agile col-xl ml-xl-3 mt-xl-0 mt-3">
+                    <!-- Search-from -->
+                    <form action="/home/manage/uid={{ request.session.user_id }}/page={{ pindex }}" method="POST" class="form-inline mx-auto search-form">
+
+                        <!--<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" required="">-->
+                        user id:&nbsp;<input class="form-control mr-sm-2" type="text" name="user_id" id="user_id" value="">&nbsp;
+                        user name:&nbsp;<input class="form-control mr-sm-2" type="text" name="user_name" id="user_name" value="">&nbsp;
+
+                        image status &nbsp;<input class="form-control mr-sm-2" type="radio" name="image_status" value="1" checked>normal
+                                    &nbsp;<input class="form-control mr-sm-2" type="radio" name="image_status" value="0">deleted&nbsp;
+                        From <input class="form-control mr-sm-2" type="datetime-local" name="from" id="from" value="">
+                        To <input class="form-control mr-sm-2" type="datetime-local" name="to" id="to" value="">&nbsp;
+                        <button class="btn btn-style my-2 my-sm-0" type="button" id="search">Search</button>
+                        <!--<button class="btn btn-style my-2 my-sm-0" type="button" id="submit" onclick="">Search</button>-->
+                    </form>
+                    <!--// Search-from -->
+                    <hr/>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    S/N
+                                </th>
+                                <th class="text-center">
+                                    user ID
+                                </th>
+                                <th class="text-center">
+                                    user name
+                                </th>
+                                <th class="text-center">
+                                    operating time
+                                </th>
+                                <th class="text-center">
+                                    image
+                                </th>
+                                <th class="text-center">
+                                    image status
+                                </th>
+                                <th class="text-center">
+                                    predicted time
+                                </th>
+                                <th class="text-center">
+                                    for more details
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="search_content">
+
+                        </tbody>
+                </table>
+                    <hr>
+
+                    <div align="right">
+                        <ul class="pagination pagination-lg">
+
+                        <li id="index">
+
+                        </li>
+
+                        </ul>
+                    </div>
+
+                </div>
+
+{% endblock context %}
+{% block js %}
+
+
+<script type="text/javascript">
+    function initTable(index){
+        var user_id = $("#user_id").val();
+        var from_time = $("#from").val();
+        var user_name = $("#user_name").val();
+        var to_time = $("#to").val();
+        var image_status_obj = document.getElementsByName("image_status");
+        var pindex = index
+
+        for(var i=0; i<image_status_obj.length; i++){
+            if(image_status_obj[i].checked){
+                var image_status = image_status_obj[i].value;
+            }
+        }
+
+        $.ajax({
+            type:"post",
+            url:"/manage/user_manage",
+            data:{"from":from_time, "to":to_time, "user_id":user_id, "user_name":user_name, "image_status": image_status,
+                    "pindex": String(pindex)},
+            dataType:"json",
+            success: function(data){
+                var html = "";
+                data = JSON.parse(data)
+                <!--console.log(data)-->
+
+                for(var i=0; i<data.page_index_num; i++){
+
+                    var picture = data.page[i];
+                    
+                    var url = picture['purl'];
+                    var link_id = picture['id'];
+                    var index = i+1;
+                    var user_id = picture['_puser_cache'].id;
+                    var user_name = picture['_puser_cache'].uname;
+                    var image_status = picture['pstatus'];
+                    //console.log(typeof(picture.pcreatetime.year));
+                    var year = String(picture.pcreatetime.year);
+                    var month = "0"+String(picture.pcreatetime.month);
+                    var day = "0"+String(picture.pcreatetime.day);
+                    var hour = "0"+String(picture.pcreatetime.hour);
+                    var minute = "0"+String(picture.pcreatetime.minute);
+
+                    var time = year+'-'+month.slice(-2)+'-'+day.slice(-2)+" "+hour.slice(-2)+":"+minute.slice(-2);
+                    //console.log(time)
+
+                    html += '<tr align="center" valign="middle">';
+                    html += '<td>'+String((data.pindex-1)*10+index)+'</td>';
+                    html += '<td>'+user_id+'</td>';
+                    html += '<td>'+user_name+'</td>';
+                    html += '<td>'+time+'</td>';
+                    html += '<td>'+'<img src="'+url+'">'+'</td>';
+                    if(image_status == '1'){
+                        html += '<td>normal</td>';
+                    }
+                    else{
+                        html += '<td>deleted</td>';
+                    }
+
+                    html += '<td>'+picture['pretime']+'</td>';
+                    html += '<td>'+'<a href="/home/detail/pid='+link_id+'" class="btn btn-link" name="detail" id="detail">For More Details</a></td></tr>';
+                }
+                $("#search_content").html(html);
+
+                html1 = "";
+                for(var j=0; j<data.page_num; j++){
+                    html1 += '<a href="#" class="indexes" id="'+String(j+1)+'">'+String(j+1)+'</a>'
+                }
+                $("#index").html(html1);
+            }
+        })
+    }
+
+
+
+    $(document).ready(function () {
+        //调用函数，初始化表格
+        initTable(1);
+        console.log("chushihua");
+
+        //当点击查询按钮的时候执行
+        $("#search").bind("click", function(){
+            initTable(1);
+
+        });
+
+        //分页执行
+        $("#index").on("click", ".indexes", function(){
+            var index = $(this).attr("id");
+            <!--alert(index);-->
+            initTable(index);
+        })
+
+        <!--$(".indexes").bind("click", function(){-->
+            <!--index = $(this).attr("id");-->
+            <!--alert("0000");-->
+            <!--initTable(index);-->
+        <!--});-->
+        //$(".indexes").click(initTable($(this).attr("id")));
+    });
+
+
+
+    <!--$(document).ready(function(){-->
+      <!--$(".index").click(function(){-->
+        <!--var from_time = $("#from").val();-->
+        <!--var to_time = $("#to").val();-->
+        <!--var index = $(this).attr('id')-->
+        <!--console.log("999999")-->
+        <!--console.log(index)-->
+        <!---->
+        <!--$.ajax({-->
+            <!--type:"get",-->
+            <!--url:"/home/manage/uid={{ request.session.user_id }}/page="+index,-->
+            <!--data:{"from":from_time, "to":to_time},-->
+            <!--datatype:"json",-->
+            <!--success: function(data){-->
+                        <!--console.log(data)-->
+                     <!--}-->
+        <!--})-->
+      <!--});-->
+    <!--});-->
+</script>
+
+<!--<script>-->
+    <!--function change_page(change){-->
+        <!--index = {{ pindex }}-->
+        <!--if(change == 1){-->
+            <!--index = parseInt(index) - 1;-->
+            <!--$.get('/home/manage/uid={{ request.session.user_id }}/page=index')-->
+        <!--}-->
+        <!--else{-->
+            <!--index = parseInt(index) + 1-->
+            <!--$.get('/home/manage/uid={{ request.session.user_id }}/page=index')-->
+        <!--}-->
+
+	<!--}-->
+
+<!--</script>-->
+<!--<script type="text/javascript">-->
+    <!--function send2(){-->
+        <!--var from_time = $('#from').val();-->
+        <!--var to_time = $('#to').val();-->
+
+
+        <!--$.get('/home/manage/uid={{ request.session.user_id }}/page={{ index }}?from_time=' + from_time + '&to_time=' + to_time, function(results){-->
+
+            <!--console.log(type(results));-->
+            <!--var html = "";-->
+            <!--for (var i = 0; i < results['page'].length; i++) {-->
+
+                <!--var picture = results['page'][i];-->
+                <!--var url = picture['purl'];-->
+                <!--var link_id = picture['id'];-->
+                <!--var index = i+1;-->
+
+                <!--console.log(picture['pcreatetime'])-->
+                <!--html += '<tr align="center" valign="middle">';-->
+                <!--html += '<td>'+String(index)+'</td>';-->
+                <!--html += '<td>'+picture['pcreatetime']+'</td>';-->
+                <!--html += '<td>'+'<img src="url">'+'</td>';-->
+                <!--html += '<td>'+picture['pretime']+'</td>';-->
+                <!--html += '<td>'+'<a href="/home/detail/pid=link_id" class="btn btn-link" name="detail" id="detail">For More Details</a>'+'</td>'+'</tr>';-->
+            <!--}-->
+            <!--$('#search_content').html(html);-->
+
+        <!--})-->
+
+    <!--}-->
+    <!--window.onload = send2;-->
+
+<!--</script>-->
+<!--<script type="text/javascript">-->
+    <!--function send1(){-->
+        <!--$.get('/home/test/')-->
+    <!--}-->
+
+<!--</script>-->
+{% endblock js %}
